@@ -1,0 +1,11 @@
+:root {
+	@for $i from 1 through 5 {
+		$base: $i + 5;
+		$min: $base * 0.25 + 0.75rem;
+		$ideal: $base * 0.5 + 1.5vw;
+		$max: $base * 0.5 + 1rem;
+		$count: $base - 2;
+
+		--font-size-fluid-#{$count}: clamp(#{$min}, #{$ideal}, #{$max});
+	}
+}
