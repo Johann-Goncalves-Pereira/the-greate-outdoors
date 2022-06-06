@@ -1,6 +1,5 @@
 module Layout exposing (Model, initLayout, viewLayout)
 
-import Array
 import Gen.Route as Route exposing (Route)
 import Html exposing (Attribute, Html, a, div, header, main_, nav, text)
 import Html.Attributes exposing (class, classList, href, id, tabindex)
@@ -15,6 +14,7 @@ type alias Model msg =
     { route : Route
     , mainContent : List (Html msg)
     , mainAttrs : List (Attribute msg)
+    , headerContent : List (Html msg)
     }
 
 
@@ -31,6 +31,7 @@ initLayout =
     { route = Route.Home_
     , mainContent = []
     , mainAttrs = []
+    , headerContent = []
     }
 
 
@@ -109,7 +110,6 @@ viewLayout model =
     in
     [ div
         [ id "root"
-        , placeholderStyles 0
         , classList [ ( "scroll", True ), ( "root--" ++ classBuilder (routeName model.route), True ) ]
         ]
         [ viewHeader model
@@ -120,13 +120,10 @@ viewLayout model =
 
 viewHeader : Model msg -> Html msg
 viewHeader model =
-    header [ class "main-header" ]
-        [ viewHeaderLinks model [ Route.Home_, Route.About ]
-            |> nav
-                [ class "main-header__nav"
-                , placeholderStyles 1
-                ]
-        ]
+    header [ class "main-header" ] <|
+        nav [ class "main-header__nav" ]
+            (viewHeaderLinks model [ Route.Home_ ])
+            :: model.headerContent
 
 
 viewHeaderLinks : Model msg -> List Route -> List (Html msg)
@@ -147,35 +144,12 @@ viewLink : Link -> Html msg
 viewLink model =
     a
         [ class "main-header__links"
-        , placeholderStyles 2
         , classList
             [ ( "main-header__links--current-page"
               , isRoute model.routeReceived model.routeStatic
               )
-            , ( "main-header__links--margin-left", model.hasMarginLeft )
             ]
         , href <| Route.toHref model.routeStatic
         , tabindex 1
         ]
         [ text model.routeName ]
-
-
-placeholderStyles : Int -> Attribute msg
-placeholderStyles index =
-    let
-        listOfStyles : List (Attribute msg)
-        listOfStyles =
-            [ class "grid grid-rows-[min-content,auto] gap-8"
-            , class "flex justify-center gap-4 text-2xl bg-surface-1 shadow-inner"
-            , class "p-4 font-semibold md:p-8"
-            ]
-
-        arrayOfStyles : Array.Array (Attribute msg)
-        arrayOfStyles =
-            Array.fromList listOfStyles
-
-        getStyle : Maybe (Attribute msg)
-        getStyle =
-            Array.get index arrayOfStyles
-    in
-    Maybe.withDefault (class "error") getStyle
