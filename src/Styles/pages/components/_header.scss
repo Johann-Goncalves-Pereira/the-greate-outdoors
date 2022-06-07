@@ -1,4 +1,37 @@
 .main-header {
 	position: relative;
 	z-index: var(--layer-5);
+
+	display: grid;
+	grid-auto-flow: column;
+	place-items: center;
+	gap: 0.25rem;
+
+	margin: auto;
+
+	width: Min(100vw - 10rem, 1920px);
+
+	> span {
+		font-size: 3rem;
+	}
+
+	a {
+		display: grid;
+		grid-auto-flow: column;
+		place-items: center;
+		gap: 0.5rem;
+
+		padding: 1.75rem 2rem;
+		font-weight: var(--font-weight-6);
+		font-size: var(--font-size-2);
+
+		@media screen and (prefers-contrast: less) {
+			background-color: var(--clr-surface-0);
+		}
+
+		> span {
+			font-weight: var(--font-weight-8);
+			font-size: 1rem;
+		}
+	}
 }

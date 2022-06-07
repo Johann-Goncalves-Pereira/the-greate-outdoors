@@ -1,7 +1,7 @@
 module Utils.View exposing (..)
 
-import Html exposing (Attribute)
-import Html.Attributes exposing (attribute)
+import Html exposing (Attribute, Html, span, text)
+import Html.Attributes exposing (attribute, class)
 
 
 customProps : List { prop : String, value : String } -> Attribute msg
@@ -13,3 +13,14 @@ customProps listProps =
         ""
         listProps
         |> attribute "style"
+
+
+customProp : ( String, String ) -> Attribute msg
+customProp ( p, v ) =
+    String.concat [ "--", p, ":", v, ";" ]
+        |> attribute "style"
+
+
+materialIcon : String -> Html msg
+materialIcon icon =
+    span [ class "material-symbols-outlined" ] [ text icon ]
