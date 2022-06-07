@@ -3,7 +3,7 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Components.Svg as SVG exposing (Logo(..))
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
-import Html exposing (Attribute, Html, a, div, h1, h2, h5, img, node, p, section, source, span, text)
+import Html exposing (Attribute, Html, a, div, h1, h2, h5, img, li, node, p, section, source, span, strong, text, ul)
 import Html.Attributes exposing (alt, attribute, class, href, id, media, rel, src, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
 import Layout exposing (initLayout)
@@ -95,11 +95,16 @@ srcset url =
 
 viewPage : Model -> List (Html Msg)
 viewPage model =
+    [ viewStart model, viewIntro model ]
+
+
+viewStart : Model -> Html Msg
+viewStart _ =
     let
         listMd =
             [ 1536, 1280, 1024, 768 ]
     in
-    [ section [ class "start" ]
+    section [ class "start", ariaLabelledby "title--start" ]
         [ node "picture"
             [ class "start__bg" ]
             (List.indexedMap
@@ -124,8 +129,45 @@ viewPage model =
                 ++ [ img [ src (baseImageLink ++ "00.webp"), alt "background image" ] [] ]
             )
         , div [ class "grid" ]
-            [ h1 [ class "start__title" ] [ text "the great outdoors" ]
+            [ h1 [ class "start__title", id "title--start" ] [ text "the great outdoors" ]
             , p [ class "start__text" ] [ text "Wander often. wonder always." ]
             ]
         ]
-    ]
+
+
+viewIntro : Model -> Html Msg
+viewIntro _ =
+    section [ class "intro", ariaLabelledby "title--intro" ]
+        [ h2 [ class "intro__title", id "title--intro" ] [ text "Explore the World" ]
+        , p [ class "intro__text" ]
+            [ text """We seek to provide the most authentic content from athletes,
+             adventurers, explorers and travellers around the world. Our long-term
+             mission is to educate, inspire and enable all peoples to experience & 
+             protect wilderness.""" ]
+        , List.map
+            (\{ url, place, country } ->
+                li [ class "card" ]
+                    [ img [ class "card__img", src url, alt <| "Photo " ++ place ] []
+                    , div [ class "card__wrapper" ]
+                        [ strong [ class "card__title" ] [ text place ]
+                        , p [ class "card__text" ] [ text country ]
+                        ]
+                    ]
+            )
+            [ { url = "https://picsum.photos/800/1200"
+              , place = "Nekajlskd"
+              , country = "norway"
+              }
+            , { url = "https://picsum.photos/800/1250"
+              , place = "Nekajlskd"
+              , country = "norway"
+              }
+            , { url = "https://picsum.photos/800/1100"
+              , place = "Nekajlskd"
+              , country = "norway"
+              }
+            ]
+            |> ul [ class "intro__list" ]
+        , a [ class "intro__link", href "#" ]
+            [ text "see more", materialIcon "navigate_next" ]
+        ]
