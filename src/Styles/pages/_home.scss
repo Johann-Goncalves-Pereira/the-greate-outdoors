@@ -1,8 +1,8 @@
 @use "../abstracts" as *;
 
 .main--home {
-	position: absolute;
-	top: 0;
+	grid-column: 1;
+	grid-row: 1/3;
 }
 
 .main--home .start {
