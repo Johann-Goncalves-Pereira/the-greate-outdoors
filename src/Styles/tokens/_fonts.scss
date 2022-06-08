@@ -1,4 +1,6 @@
 :root {
+	--rasa-font: "rasa", var(--font-serif);
+
 	@for $i from 1 through 5 {
 		$base: $i + 5;
 		$min: $base * 0.25 + 0.75rem;

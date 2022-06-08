@@ -1,4 +1,4 @@
-.main-header {
+.root__header {
 	position: relative;
 	z-index: var(--layer-5);
 
@@ -6,6 +6,9 @@
 	grid-auto-flow: column;
 	place-items: center;
 	gap: 0.25rem;
+
+	grid-column: 1;
+	grid-row: 1/1;
 
 	margin: auto;
 
