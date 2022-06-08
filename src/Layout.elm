@@ -1,7 +1,7 @@
-module Layout exposing (Model, initLayout, viewLayout)
+module Layout exposing (Model, headerId, initLayout, viewLayout)
 
 import Gen.Route as Route exposing (Route)
-import Html exposing (Attribute, Html, a, div, header, main_, nav, text)
+import Html exposing (Attribute, Html, a, div, footer, header, main_, nav, text)
 import Html.Attributes exposing (class, classList, href, id, tabindex)
 import Regex
 
@@ -12,9 +12,12 @@ import Regex
 
 type alias Model msg =
     { route : Route
+    , rootAttrs : List (Attribute msg)
     , mainContent : List (Html msg)
     , mainAttrs : List (Attribute msg)
     , headerContent : List (Html msg)
+    , footerContent : List (Html msg)
+    , footerAttrs : List (Attribute msg)
     }
 
 
@@ -29,9 +32,12 @@ type alias Link =
 initLayout : Model msg
 initLayout =
     { route = Route.Home_
+    , rootAttrs = []
     , mainContent = []
     , mainAttrs = []
     , headerContent = []
+    , footerContent = []
+    , footerAttrs = []
     }
 
 
@@ -106,22 +112,35 @@ viewLayout model =
     let
         mainClass : Attribute msg
         mainClass =
-            class <| "main--" ++ classBuilder (routeName model.route)
+            class <| "root__main main--" ++ classBuilder (routeName model.route)
     in
     [ div
-        [ id "root"
-        , classList [ ( "scroll", True ), ( "root--" ++ classBuilder (routeName model.route), True ) ]
-        ]
+        ([ id "root"
+         , classList
+            [ ( "scroll", True )
+            , ( "root root--" ++ classBuilder (routeName model.route)
+              , True
+              )
+            ]
+         ]
+            ++ model.rootAttrs
+        )
         [ viewHeader model
         , main_ (mainClass :: model.mainAttrs) model.mainContent
+        , footer (class "root__footer" :: model.footerAttrs) model.footerContent
         ]
     ]
 
 
+headerId : String
+headerId =
+    "root__header"
+
+
 viewHeader : Model msg -> Html msg
 viewHeader model =
-    header [ class "main-header" ] <|
-        nav [ class "main-header__nav" ]
+    header [ class "root__header", id headerId ] <|
+        nav [ class "root__header__nav" ]
             (viewHeaderLinks model [ Route.Home_ ])
             :: model.headerContent
 
@@ -143,9 +162,9 @@ viewHeaderLinks model links =
 viewLink : Link -> Html msg
 viewLink model =
     a
-        [ class "main-header__links"
+        [ class "root__header__links"
         , classList
-            [ ( "main-header__links--current-page"
+            [ ( "root__header__links--current-page"
               , isRoute model.routeReceived model.routeStatic
               )
             ]
