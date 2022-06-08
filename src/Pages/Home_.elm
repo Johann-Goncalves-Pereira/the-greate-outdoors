@@ -1,26 +1,32 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
+import Browser.Dom as BrowserDom exposing (Element, Error)
 import Components.Svg as SVG exposing (Logo(..))
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
 import Html exposing (Attribute, Html, a, div, h1, h2, h5, img, li, node, p, section, source, span, strong, text, ul)
 import Html.Attributes exposing (alt, attribute, class, href, id, media, rel, src, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
+import Html.Events.Extra.Mouse as Mouse
 import Layout exposing (initLayout)
 import Page
 import Request
+import Round
 import Shared
 import Svg exposing (desc)
+import Svg.Attributes exposing (transform)
+import Task
 import Utils.View exposing (customProp, materialIcon)
 import View exposing (View)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
 page shared req =
-    Page.sandbox
+    Page.element
         { init = init
         , update = update
         , view = view
+        , subscriptions = subs
         }
 
 
@@ -29,12 +35,19 @@ page shared req =
 
 
 type alias Model =
-    {}
+    { mouseStart : { x : Float, y : Float }
+    , startBgSize : { w : Float, h : Float }
+    }
 
 
-init : Model
+init : ( Model, Cmd Msg )
 init =
-    {}
+    ( { mouseStart = { x = 0, y = 0 }
+      , startBgSize = { w = 0, h = 0 }
+      }
+    , BrowserDom.getElement idStart
+        |> Task.attempt GetStartBgSize
+    )
 
 
 
@@ -42,14 +55,39 @@ init =
 
 
 type Msg
-    = ReplaceMe
+    = MouseStart ( Float, Float )
+    | GetStartBgSize (Result Error Element)
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ReplaceMe ->
-            model
+        MouseStart ( x_, y_ ) ->
+            ( { model | mouseStart = { x = x_, y = y_ } }, Cmd.none )
+
+        GetStartBgSize result ->
+            case result of
+                Err _ ->
+                    ( model, Cmd.none )
+
+                Ok e_ ->
+                    ( { model
+                        | startBgSize =
+                            { w = e_.element.width
+                            , h = e_.element.height
+                            }
+                      }
+                    , Cmd.none
+                    )
+
+
+
+-- SUBS
+
+
+subs : Model -> Sub Msg
+subs model =
+    Sub.none
 
 
 
@@ -98,13 +136,44 @@ viewPage model =
     [ viewStart model, viewIntro model ]
 
 
+idStart : String
+idStart =
+    "start--id"
+
+
 viewStart : Model -> Html Msg
-viewStart _ =
+viewStart model =
     let
+        listMd : List Int
         listMd =
             [ 1536, 1280, 1024, 768 ]
+
+        m : { x : Float, y : Float }
+        m =
+            { x = model.mouseStart.x, y = model.mouseStart.y }
+
+        s : { w : Float, h : Float }
+        s =
+            { w = model.startBgSize.w, h = model.startBgSize.h }
+
+        sHalf : { w : Float, h : Float }
+        sHalf =
+            { w = s.w / 2, h = s.h / 2 }
+
+        mBasePosition : { x : Float, y : Float }
+        mBasePosition =
+            { x = m.x - sHalf.w, y = m.y - sHalf.h }
+
+        normalizeTransform : { x : Float, y : Float }
+        normalizeTransform =
+            { x = mBasePosition.x / sHalf.w, y = mBasePosition.y / sHalf.h }
     in
-    section [ class "start", ariaLabelledby "title--start" ]
+    section
+        [ class "start"
+        , id idStart
+        , ariaLabelledby "title--start"
+        , Mouse.onMove (.clientPos >> MouseStart)
+        ]
         [ node "picture"
             [ class "start__bg" ]
             (List.indexedMap
@@ -126,11 +195,39 @@ viewStart _ =
                         []
                 )
                 listMd
-                ++ [ img [ src (baseImageLink ++ "00.webp"), alt "background image" ] [] ]
+                ++ [ img
+                        [ src (baseImageLink ++ "00.webp")
+                        , alt "background image"
+                        , String.concat
+                            [ "transform:scale(1.025) translate("
+                            , Round.round 3 (normalizeTransform.x * -1)
+                            , "rem,"
+                            , Round.round 3 (normalizeTransform.y * -1)
+                            , "rem);"
+                            ]
+                            |> attribute "style"
+                        ]
+                        []
+                   ]
             )
-        , div [ class "grid" ]
+        , div
+            [ class "grid"
+            , String.concat
+                [ "transform:translate("
+                , Round.round 3 (normalizeTransform.x / 3)
+                , "rem,"
+                , Round.round 3 (normalizeTransform.y / 3)
+                , "rem);"
+                ]
+                |> attribute "style"
+            ]
             [ h1 [ class "start__title", id "title--start" ] [ text "the great outdoors" ]
-            , p [ class "start__text" ] [ text "Wander often. wonder always." ]
+            , p [ class "start__text" ]
+                [ --
+                  text "Wander often. wonder always."
+
+                --   text <| String.concat [ "x:", Round.round 3 normalizeTransform.x, " y:", Round.round 3 normalizeTransform.y ]
+                ]
             ]
         ]
 
