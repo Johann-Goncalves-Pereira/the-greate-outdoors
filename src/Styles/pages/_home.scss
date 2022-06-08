@@ -12,6 +12,7 @@
 
 	z-index: var(--layer-2);
 	user-select: none;
+	overflow: hidden;
 
 	&::before {
 		content: "";
@@ -42,6 +43,9 @@
 			aspect-ratio: var(--ratio-widescreen);
 			object-fit: cover;
 
+			will-change: transform;
+			transition: transform 300ms ease-out;
+
 			@include md(xl) {
 				width: 100vw;
 			}
@@ -49,6 +53,8 @@
 	}
 
 	.grid {
+		will-change: transform;
+		transition: transform 300ms ease-out;
 		@media screen and (prefers-contrast: less) {
 			background-color: var(--clr-surface-0);
 		}
@@ -91,7 +97,7 @@
 		flex-wrap: wrap;
 		justify-content: center;
 		gap: Min(1.25rem + 1vw, 4rem);
-		width: Min(100vw - 8rem, 1536px);
+		width: Min(100vw - 8rem, var(--size-xl));
 		padding-block: 4rem;
 	}
 
@@ -116,18 +122,40 @@
 
 	width: Min(15rem + 10vw, 30rem);
 
+	user-select: none;
+
 	> :is(img, div) {
 		grid-column: 1/2;
 		grid-row: 1/2;
+	}
+
+	transition: 300ms ease-out;
+	will-change: transform;
+	transition-property: transform;
+
+	&:enter,
+	&:focus-within {
+		transform: translateY(-0.3rem);
+
+		&::before {
+			background-color: hsla(var(--clr-surface-0-hsl), 0.25);
+		}
+
+		.card__wrapper {
+			transform: translateY(-0.75rem);
+		}
 	}
 
 	&::before {
 		content: "";
 		position: absolute;
 		inset: 0;
-		background-color: hsla(var(--clr-surface-0-hsl), 0.25);
+		background-color: hsla(var(--clr-surface-0-hsl), 0.5);
 		box-shadow: inset 0 -2rem 5rem -1rem var(--clr-surface-0);
 		z-index: -1;
+		transition: inherit;
+		will-change: background-color;
+		transition-property: background-color;
 	}
 
 	&__img {
@@ -142,6 +170,9 @@
 		place-items: center;
 		text-align: center;
 		margin-bottom: 2rem;
+		transition: inherit;
+		will-change: transform;
+		transition-property: transform;
 	}
 
 	&__title {
