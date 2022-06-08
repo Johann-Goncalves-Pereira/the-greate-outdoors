@@ -63,7 +63,7 @@
 	&__title {
 		font-weight: var(--font-weight-6);
 		font-size: var(--font-size-fluid-7);
-		font-family: "Rasa", sans-serif;
+		font-family: var(--rasa-font);
 		text-transform: capitalize;
 	}
 
@@ -176,7 +176,7 @@
 	}
 
 	&__title {
-		font-family: "Rasa", sans-serif;
+		font-family: var(--rasa-font);
 		font-weight: 600;
 		font-size: var(--font-size-fluid-2);
 	}
