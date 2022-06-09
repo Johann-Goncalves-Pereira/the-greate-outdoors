@@ -164,7 +164,7 @@ viewHeader model =
 baseImageLink : String
 baseImageLink =
     -- "bg/bg@"
-    "https://gateway.pinata.cloud/ipfs/QmRtxKmBPYsANjbsmgXU55ZjNTh4fk2D3vvyd5B3NMorrV/bg@"
+    "https://s8.gifyu.com/images/"
 
 
 srcset : List String -> Attribute Msg
@@ -186,9 +186,14 @@ idStart =
 viewStart : Model -> Html Msg
 viewStart model =
     let
-        listMd : List Int
+        listMd : List ( Int, String, String )
         listMd =
-            [ 1536, 1280, 1024, 768 ]
+            List.map (\( x, y, z ) -> ( x, baseImageLink ++ y, baseImageLink ++ z ))
+                [ ( 1536, "bg037c12a08e60239fa2", "bg037f7d77bc4b1a1471" )
+                , ( 1280, "bg027c49899ea80f0d22", "bg02499ecb810f192257" )
+                , ( 1024, "bg0152d57d4cb91bc109", "bg019e8c0216e6b0162b" )
+                , ( 768, "bg0009959450f780a002", "bg001ee8ec8769ff9ca8" )
+                ]
 
         m : { x : Float, y : Float }
         m =
@@ -218,30 +223,23 @@ viewStart model =
         ]
         [ node "picture"
             [ class "start__bg" ]
-            (List.indexedMap
-                (\i md ->
-                    let
-                        correctUrl =
-                            String.fromInt >> String.padLeft 2 '0'
-
-                        invertValue =
-                            List.length listMd - i - 1
-                    in
+            (List.map
+                (\( md, ulrWebp, ulrJpg ) ->
                     source
                         [ media <| "(min-width:" ++ String.fromInt md ++ "px)"
                         , srcset
-                            [ baseImageLink ++ correctUrl invertValue ++ ".webp"
-                            , baseImageLink ++ correctUrl invertValue ++ ".jpg"
+                            [ ulrWebp ++ ".webp"
+                            , ulrJpg ++ ".jpg"
                             ]
                         ]
                         []
                 )
                 listMd
                 ++ [ img
-                        [ src (baseImageLink ++ "00.webp")
+                        [ src (baseImageLink ++ "bg001ee8ec8769ff9ca8.jpg")
                         , alt "background image"
                         , String.concat
-                            [ "transform:scale(1.025) translate("
+                            [ "transform:scale(1.05) translate("
                             , Round.round 3 (normalizeTransform.x * -1)
                             , "rem,"
                             , Round.round 3 (normalizeTransform.y * -1)
@@ -288,15 +286,15 @@ viewIntro _ =
                         ]
                     ]
             )
-            [ { url = "https://picsum.photos/800/1200"
+            [ { url = "https://s8.gifyu.com/images/tim-stief-YFFGkE3y4F8-unsplash.webp"
               , place = "Nærøyfjorden"
               , country = "norway"
               }
-            , { url = "https://picsum.photos/800/1250"
+            , { url = "https://s8.gifyu.com/images/dani-garcia-fJQamCZIZf8-unsplash.webp"
               , place = "Antelope Canyon"
               , country = "United states"
               }
-            , { url = "https://picsum.photos/800/1100"
+            , { url = "https://s8.gifyu.com/images/karsten-wurth-FYMvmVz3OQo-unsplash.webp"
               , place = "Grossglockner"
               , country = "Austria"
               }
@@ -316,14 +314,14 @@ viewJornal _ =
             for you to get involved in protecting your outdoor experiences.""" ]
         , ul [ class "journal__list" ]
             [ viewUpdates
-                { ulr = "https://picsum.photos/1024/600"
+                { ulr = "https://s8.gifyu.com/images/madhu-shesharam-HRA_VAi9_Nc-unsplash.webp"
                 , date = "May 28, 2017"
                 , title = "An Unforgettable"
                 , desc = """If you only have one day to visit Yosemite
                  National Park and you want to make the most out of it."""
                 }
             , viewUpdates
-                { ulr = "https://picsum.photos/1024/900"
+                { ulr = "https://s8.gifyu.com/images/joseph-barrientos-Ji_G7Bu1MoM-unsplash.webp"
                 , date = "May 30, 2017"
                 , title = "Symphonies in Steel"
                 , desc = """Crossing the Golden Gate Bridge from San 
@@ -348,7 +346,7 @@ viewUpdates data =
 
 viewFooter : Model -> List (Html Msg)
 viewFooter _ =
-    [ img [ class "img", src "https://picsum.photos/1536/1024" ] []
+    [ img [ class "img", src "https://s8.gifyu.com/images/shot-by-cerqueira-XTKjhfE-Inc-unsplash.webp" ] []
     , div [ class "wrapper" ]
         [ p []
             [ text "© 2022 "

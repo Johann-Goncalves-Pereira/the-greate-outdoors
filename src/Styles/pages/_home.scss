@@ -300,10 +300,10 @@
 		width: 100%;
 		height: 100%;
 
-		border-radius: 10rem;
+		border-radius: 6rem;
 		outline-offset: -1px;
 		outline: 2px solid var(--clr-surface-0);
-		box-shadow: inset 0 0 8rem 5rem var(--clr-surface-0), inset 0 0 2rem 2rem var(--clr-surface-0),
+		box-shadow: inset 0 0 7rem 2rem var(--clr-surface-0), inset 0 0 1rem 1rem var(--clr-surface-0),
 			0 0 0 30rem var(--clr-surface-0);
 		background-color: hsla(var(--clr-surface-0-hsl), 0.35);
 
@@ -324,6 +324,10 @@
 		user-select: none;
 
 		@include media(md) {
+			aspect-ratio: var(--ratio-widescreen);
+		}
+
+		@include media(xl) {
 			aspect-ratio: var(--ratio-ultrawide);
 		}
 	}
