@@ -46,7 +46,7 @@
 			will-change: transform;
 			transition: transform 300ms ease-out;
 
-			@include md(xl) {
+			@include media(xl) {
 				width: 100vw;
 			}
 		}
@@ -124,7 +124,7 @@
 			width: Min(100vw - 8rem, var(--size-xl));
 			padding-block: 4rem;
 
-			@include md(md) {
+			@include media(md) {
 				grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
 			}
 		}
@@ -186,7 +186,7 @@
 		width: 100%;
 	}
 
-	@include md(md) {
+	@include media(md) {
 		&:last-child {
 			grid-column: 1 / span 2;
 			width: 50%;
@@ -194,7 +194,7 @@
 		}
 	}
 
-	@include md(xl) {
+	@include media(xl) {
 		&:last-child {
 			grid-column: initial;
 			width: 100%;
@@ -268,6 +268,7 @@
 		width: 100%;
 		aspect-ratio: var(--ratio-widescreen);
 		object-fit: cover;
+		user-select: none;
 	}
 
 	&__title {
@@ -278,5 +279,66 @@
 	&__text {
 		width: Min(100% - 2rem, 45ch);
 		text-align: center;
+	}
+}
+
+.footer--home {
+	display: grid;
+	align-items: end;
+	overflow: hidden;
+
+	.img,
+	.wrapper,
+	&::before {
+		grid-column: 1/2;
+		grid-row: 1/2;
+	}
+
+	&::before {
+		content: "";
+		z-index: -1;
+		width: 100%;
+		height: 100%;
+
+		border-radius: 10rem;
+		outline-offset: -1px;
+		outline: 2px solid var(--clr-surface-0);
+		box-shadow: inset 0 0 8rem 5rem var(--clr-surface-0), inset 0 0 2rem 2rem var(--clr-surface-0),
+			0 0 0 30rem var(--clr-surface-0);
+		background-color: hsla(var(--clr-surface-0-hsl), 0.35);
+
+		transition: transform 300ms ease-out;
+	}
+
+	&:enter {
+		&::before {
+			transform: scaleX(1.05);
+		}
+	}
+
+	.img {
+		z-index: -2;
+		width: 100%;
+		aspect-ratio: var(--ratio-ultrawide);
+		object-fit: cover;
+		user-select: none;
+	}
+
+	.wrapper {
+		display: grid;
+		grid-auto-flow: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+
+		margin-bottom: 1rem;
+
+		&::before {
+			content: "";
+			grid-column-start: 2;
+			height: 100%;
+			width: 1px;
+			background-color: var(--clr-text-0);
+		}
 	}
 }
