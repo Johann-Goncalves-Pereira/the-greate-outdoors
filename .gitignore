@@ -161,4 +161,4 @@ dist-ssr
 .netlify
 
 # Public
-/public/bg
+# /public/bg
