@@ -4,7 +4,7 @@ import Browser.Dom as BrowserDom exposing (Element, Error)
 import Components.Svg as SVG exposing (Logo(..))
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
-import Html exposing (Attribute, Html, a, div, h1, h2, h3, h5, img, li, node, p, section, source, span, strong, text, ul)
+import Html exposing (Attribute, Html, a, div, h1, h2, h3, h5, img, li, node, object, p, section, source, span, strong, text, ul)
 import Html.Attributes exposing (alt, attribute, class, href, id, media, rel, src, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
 import Html.Events.Extra.Mouse as Mouse
@@ -348,12 +348,16 @@ viewUpdates data =
 
 viewFooter : Model -> List (Html Msg)
 viewFooter _ =
-    [ img
-        [ src "https://photos.app.goo.gl/SYRBUSENui1xdyPP8"
-        , alt "Photo Footer Bg"
-        ]
-        []
+    [ img [ class "img", src "https://picsum.photos/1536/1024" ] []
     , div [ class "wrapper" ]
-        [ p [] []
+        [ p []
+            [ text "© 2022 "
+            , span [ class "uppercase" ] [ text "The great outdoors." ]
+            , text " All rights reserved."
+            ]
+        , a [ class "uppercase", href "#" ] [ text "About" ]
+        , a [ class "uppercase", href "#" ] [ text "Explore" ]
+        , a [ class "uppercase", href "#" ] [ text "Journal" ]
+        , a [ class "uppercase", href "#" ] [ text "Search" ]
         ]
     ]
