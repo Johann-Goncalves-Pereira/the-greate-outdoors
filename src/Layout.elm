@@ -139,10 +139,10 @@ headerId =
 
 viewHeader : Model msg -> Html msg
 viewHeader model =
-    header [ class "root__header", id headerId ] <|
-        nav [ class "root__header__nav" ]
+    header [ class "root__header", id headerId ]
+        [ nav [ class "root__header__nav" ]
             (viewHeaderLinks model [ Route.Home_ ])
-            :: model.headerContent
+        ]
 
 
 viewHeaderLinks : Model msg -> List Route -> List (Html msg)
@@ -157,6 +157,7 @@ viewHeaderLinks model links =
                 }
         )
         links
+        ++ model.headerContent
 
 
 viewLink : Link -> Html msg

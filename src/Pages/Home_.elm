@@ -151,10 +151,10 @@ view model =
 
 viewHeader : Model -> List (Html Msg)
 viewHeader model =
-    [ a [ href "#" ] [ text "Explore" ]
+    [ a [ href "#explore" ] [ text "Explore" ]
     , materialIcon "person_pin_circle"
-    , a [ href "#" ] [ text "Journal" ]
-    , a [ href "#" ]
+    , a [ href "#title--intro" ] [ text "Journal" ]
+    , a [ href "#journal" ]
         [ materialIcon "search"
         , text "Search"
         ]
@@ -163,8 +163,8 @@ viewHeader model =
 
 baseImageLink : String
 baseImageLink =
-    -- "https://gateway.pinata.cloud/ipfs/QmRtxKmBPYsANjbsmgXU55ZjNTh4fk2D3vvyd5B3NMorrV/bg@"
-    "bg/bg@"
+    -- "bg/bg@"
+    "https://gateway.pinata.cloud/ipfs/QmRtxKmBPYsANjbsmgXU55ZjNTh4fk2D3vvyd5B3NMorrV/bg@"
 
 
 srcset : List String -> Attribute Msg
@@ -271,7 +271,7 @@ viewStart model =
 
 viewIntro : Model -> Html Msg
 viewIntro _ =
-    section [ class "intro", ariaLabelledby "title--intro" ]
+    section [ class "intro", id "explore", ariaLabelledby "title--intro" ]
         [ h2 [ class "intro__title", id "title--intro" ] [ text "Explore the World" ]
         , p [ class "intro__text" ]
             [ text """We seek to provide the most authentic content from athletes,
@@ -309,7 +309,7 @@ viewIntro _ =
 
 viewJornal : Model -> Html Msg
 viewJornal _ =
-    section [ class "journal", ariaLabelledby "title--jornal" ]
+    section [ class "journal", id "journal", ariaLabelledby "title--jornal" ]
         [ h3 [ class "journal__title", id "title--jornal" ] [ text "Journal" ]
         , p [ class "journal__text" ]
             [ text """Our favorite stories about public lands and opportunities 
@@ -356,7 +356,7 @@ viewFooter _ =
             , text " All rights reserved."
             ]
         , a [ class "uppercase", href "#" ] [ text "About" ]
-        , a [ class "uppercase", href "#" ] [ text "Explore" ]
+        , a [ class "uppercase", href "#explore" ] [ text "Explore" ]
         , a [ class "uppercase", href "#" ] [ text "Journal" ]
         , a [ class "uppercase", href "#" ] [ text "Search" ]
         ]
