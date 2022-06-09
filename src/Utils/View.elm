@@ -23,4 +23,4 @@ customProp ( p, v ) =
 
 materialIcon : String -> Html msg
 materialIcon icon =
-    span [ class "material-symbols-outlined" ] [ text icon ]
+    span [ class "material-symbols-outlined select-none" ] [ text icon ]
