@@ -9,6 +9,7 @@ import Gen.Route as Route
 import Html exposing (Attribute, Html, a, div, h1, h2, h3, h5, img, li, node, object, p, section, source, span, strong, text, ul)
 import Html.Attributes exposing (alt, attribute, class, href, id, media, rel, src, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
+import Html.Events as Events
 import Html.Events.Extra.Mouse as Mouse
 import Layout exposing (headerId, initLayout)
 import Page
@@ -63,7 +64,7 @@ getElementsData =
 
 elementsIds : List String
 elementsIds =
-    [ headerId, idStart ]
+    [ headerId, idStart, exploreId, jornalId ]
 
 
 
@@ -71,14 +72,19 @@ elementsIds =
 
 
 type Msg
-    = MouseStart ( Float, Float )
+    = NoOp
+    | MouseStart ( Float, Float )
     | GotElementData String (Result Error Element)
     | GetElementDataAgain
+    | ScrollTo Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
         MouseStart ( x_, y_ ) ->
             ( { model | mouseStart = { x = x_, y = y_ } }, Cmd.none )
 
@@ -120,6 +126,12 @@ update msg model =
 
         GetElementDataAgain ->
             ( model, getElementsData elementsIds )
+
+        ScrollTo y_ ->
+            ( model
+            , Task.attempt (\_ -> NoOp) <|
+                BrowserDom.setViewport 0 y_
+            )
 
 
 
@@ -198,9 +210,24 @@ view model =
 
 viewHeader : Model -> List (Html Msg)
 viewHeader model =
-    [ a [ href "#explore" ] [ text "Explore" ]
+    let
+        exploreYPosition =
+            (tryGetElementData model exploreId).element.y
+
+        jornalYPosition =
+            (tryGetElementData model jornalId).element.y
+    in
+    [ a
+        [ href <| "#" ++ exploreId
+        , Events.onClick <| ScrollTo exploreYPosition
+        ]
+        [ text "Explore" ]
     , materialIcon "person_pin_circle"
-    , a [ href "#title--intro" ] [ text "Journal" ]
+    , a
+        [ href <| "#" ++ jornalId
+        , Events.onClick <| ScrollTo jornalYPosition
+        ]
+        [ text "Journal" ]
     , a [ href "#journal" ]
         [ materialIcon "search"
         , text "Search"
@@ -322,9 +349,14 @@ viewStart model =
         ]
 
 
+exploreId : String
+exploreId =
+    "explore--id"
+
+
 viewIntro : Model -> Html Msg
 viewIntro _ =
-    section [ class "intro", id "explore", ariaLabelledby "title--intro" ]
+    section [ class "intro", id exploreId, ariaLabelledby "title--intro" ]
         [ h2 [ class "intro__title", id "title--intro" ] [ text "Explore the World" ]
         , p [ class "intro__text" ]
             [ text """We seek to provide the most authentic content from athletes,
@@ -360,9 +392,14 @@ viewIntro _ =
         ]
 
 
+jornalId : String
+jornalId =
+    "jornal--id"
+
+
 viewJornal : Model -> Html Msg
 viewJornal _ =
-    section [ class "journal", id "journal", ariaLabelledby "title--jornal" ]
+    section [ class "journal", id jornalId, ariaLabelledby "title--jornal" ]
         [ h3 [ class "journal__title", id "title--jornal" ] [ text "Journal" ]
         , p [ class "journal__text" ]
             [ text """Our favorite stories about public lands and opportunities 
