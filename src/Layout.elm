@@ -2,7 +2,7 @@ module Layout exposing (Model, headerId, initLayout, viewLayout)
 
 import Gen.Route as Route exposing (Route)
 import Html exposing (Attribute, Html, a, div, footer, header, main_, nav, text)
-import Html.Attributes exposing (class, classList, href, id, tabindex)
+import Html.Attributes as Attr exposing (class, classList, href, id, tabindex)
 import Regex
 
 
@@ -122,6 +122,7 @@ viewLayout model =
               , True
               )
             ]
+         , Attr.title "This is just a sample site, so It's not complete. I have made it just for fun."
          ]
             ++ model.rootAttrs
         )

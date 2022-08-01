@@ -1,12 +1,15 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
 import Browser.Dom as BrowserDom exposing (Element, Error)
+import Browser.Events exposing (onResize)
 import Components.Svg as SVG exposing (Logo(..))
+import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
 import Html exposing (Attribute, Html, a, div, h1, h2, h3, h5, img, li, node, object, p, section, source, span, strong, text, ul)
 import Html.Attributes exposing (alt, attribute, class, href, id, media, rel, src, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
+import Html.Events as Events
 import Html.Events.Extra.Mouse as Mouse
 import Layout exposing (headerId, initLayout)
 import Page
@@ -36,28 +39,32 @@ page shared req =
 
 type alias Model =
     { mouseStart : { x : Float, y : Float }
-
-    -- Size
-    , startBgSize : { w : Float, h : Float }
-    , headerSize : { h : Float, check : Bool }
+    , elementsData : Dict String Element
     }
 
 
 init : ( Model, Cmd Msg )
 init =
     ( { mouseStart = { x = 0, y = 0 }
-
-      -- Size
-      , startBgSize = { w = 0, h = 0 }
-      , headerSize = { h = 0, check = False }
+      , elementsData = Dict.empty
       }
-    , Cmd.batch
-        [ BrowserDom.getElement idStart
-            |> Task.attempt GetStartBgSize
-        , BrowserDom.getElement headerId
-            |> Task.attempt GetHeaderSize
-        ]
+    , getElementsData elementsIds
     )
+
+
+getElementsData : List String -> Cmd Msg
+getElementsData =
+    List.map
+        (\idName ->
+            BrowserDom.getElement idName
+                |> Task.attempt (GotElementData idName)
+        )
+        >> Cmd.batch
+
+
+elementsIds : List String
+elementsIds =
+    [ headerId, idStart, exploreId, jornalId ]
 
 
 
@@ -65,53 +72,66 @@ init =
 
 
 type Msg
-    = MouseStart ( Float, Float )
-    | GetStartBgSize (Result Error Element)
-    | GetHeaderSize (Result Error Element)
+    = NoOp
+    | MouseStart ( Float, Float )
+    | GotElementData String (Result Error Element)
+    | GetElementDataAgain
+    | ScrollTo Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
         MouseStart ( x_, y_ ) ->
             ( { model | mouseStart = { x = x_, y = y_ } }, Cmd.none )
 
-        GetStartBgSize result ->
-            case result of
+        GotElementData id_ result_ ->
+            case result_ of
+                Ok e_ ->
+                    let
+                        scene_ =
+                            { width = e_.scene.width
+                            , height = e_.scene.height
+                            }
+
+                        viewport_ =
+                            { x = e_.viewport.x
+                            , y = e_.viewport.y
+                            , width = e_.viewport.width
+                            , height = e_.viewport.height
+                            }
+
+                        element_ =
+                            { x = e_.element.x
+                            , y = e_.element.y
+                            , width = e_.element.width
+                            , height = e_.element.height
+                            }
+
+                        data_ =
+                            { scene = scene_
+                            , viewport = viewport_
+                            , element = element_
+                            }
+                    in
+                    ( { model | elementsData = Dict.insert id_ data_ model.elementsData }
+                    , Cmd.none
+                    )
+
                 Err _ ->
                     ( model, Cmd.none )
 
-                Ok e_ ->
-                    ( { model
-                        | startBgSize =
-                            { w = e_.element.width
-                            , h = e_.element.height
-                            }
-                      }
-                    , Cmd.none
-                    )
+        GetElementDataAgain ->
+            ( model, getElementsData elementsIds )
 
-        GetHeaderSize result ->
-            case result of
-                Err _ ->
-                    ( { model
-                        | headerSize =
-                            { h = 0
-                            , check = True
-                            }
-                      }
-                    , Cmd.none
-                    )
-
-                Ok e_ ->
-                    ( { model
-                        | headerSize =
-                            { h = e_.element.height
-                            , check = False
-                            }
-                      }
-                    , Cmd.none
-                    )
+        ScrollTo y_ ->
+            ( model
+            , Task.attempt (\_ -> NoOp) <|
+                BrowserDom.setViewport 0 y_
+            )
 
 
 
@@ -119,27 +139,66 @@ update msg model =
 
 
 subs : Model -> Sub Msg
-subs model =
-    Sub.none
+subs _ =
+    onResize <| \_ _ -> GetElementDataAgain
 
 
 
 -- VIEW
 
 
+tryGetElementData : Model -> String -> Element
+tryGetElementData model id_ =
+    let
+        maybeItem =
+            Dict.get id_ model.elementsData
+    in
+    case maybeItem of
+        Just item ->
+            item
+
+        Nothing ->
+            { scene =
+                { width = 0
+                , height = 0
+                }
+            , viewport =
+                { x = 0
+                , y = 0
+                , width = 0
+                , height = 0
+                }
+            , element =
+                { x = 0
+                , y = 0
+                , width = 0
+                , height = 0
+                }
+            }
+
+
 view : Model -> View Msg
 view model =
+    let
+        headerHeight =
+            (tryGetElementData model headerId).element.height
+    in
     { title = "Home"
     , body =
         Layout.viewLayout
             { initLayout
                 | route = Route.Home_
                 , rootAttrs =
-                    [ if model.headerSize.check then
-                        class ""
+                    [ if headerHeight /= 0 then
+                        customProp
+                            ( "root-header-height"
+                            , Round.round 0
+                                headerHeight
+                                ++ "px"
+                            )
 
                       else
-                        customProp ( "root-header-height", Round.round 0 model.headerSize.h ++ "px" )
+                        class ""
                     ]
                 , headerContent = viewHeader model
                 , mainContent = viewPage model
@@ -151,9 +210,24 @@ view model =
 
 viewHeader : Model -> List (Html Msg)
 viewHeader model =
-    [ a [ href "#explore" ] [ text "Explore" ]
+    let
+        exploreYPosition =
+            (tryGetElementData model exploreId).element.y
+
+        jornalYPosition =
+            (tryGetElementData model jornalId).element.y
+    in
+    [ a
+        [ href <| "#" ++ exploreId
+        , Events.onClick <| ScrollTo exploreYPosition
+        ]
+        [ text "Explore" ]
     , materialIcon "person_pin_circle"
-    , a [ href "#title--intro" ] [ text "Journal" ]
+    , a
+        [ href <| "#" ++ jornalId
+        , Events.onClick <| ScrollTo jornalYPosition
+        ]
+        [ text "Journal" ]
     , a [ href "#journal" ]
         [ materialIcon "search"
         , text "Search"
@@ -186,6 +260,14 @@ idStart =
 viewStart : Model -> Html Msg
 viewStart model =
     let
+        tryStartBgSize =
+            (tryGetElementData model idStart).element
+
+        startBgSize =
+            { w = tryStartBgSize.width
+            , h = tryStartBgSize.height
+            }
+
         listMd : List ( Int, String, String )
         listMd =
             List.map (\( x, y, z ) -> ( x, baseImageLink ++ y, baseImageLink ++ z ))
@@ -201,7 +283,7 @@ viewStart model =
 
         s : { w : Float, h : Float }
         s =
-            { w = model.startBgSize.w, h = model.startBgSize.h }
+            { w = startBgSize.w, h = startBgSize.h }
 
         sHalf : { w : Float, h : Float }
         sHalf =
@@ -267,9 +349,14 @@ viewStart model =
         ]
 
 
+exploreId : String
+exploreId =
+    "explore--id"
+
+
 viewIntro : Model -> Html Msg
 viewIntro _ =
-    section [ class "intro", id "explore", ariaLabelledby "title--intro" ]
+    section [ class "intro", id exploreId, ariaLabelledby "title--intro" ]
         [ h2 [ class "intro__title", id "title--intro" ] [ text "Explore the World" ]
         , p [ class "intro__text" ]
             [ text """We seek to provide the most authentic content from athletes,
@@ -305,9 +392,14 @@ viewIntro _ =
         ]
 
 
+jornalId : String
+jornalId =
+    "jornal--id"
+
+
 viewJornal : Model -> Html Msg
 viewJornal _ =
-    section [ class "journal", id "journal", ariaLabelledby "title--jornal" ]
+    section [ class "journal", id jornalId, ariaLabelledby "title--jornal" ]
         [ h3 [ class "journal__title", id "title--jornal" ] [ text "Journal" ]
         , p [ class "journal__text" ]
             [ text """Our favorite stories about public lands and opportunities 
