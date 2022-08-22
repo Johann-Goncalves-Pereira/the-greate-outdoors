@@ -1,14 +1,14 @@
-module Pages.Home_ exposing (Model, Msg, page)
+module Pages.Home_ exposing (Model, Msg, page, tryGetElementData)
 
 import Browser.Dom as BrowserDom exposing (Element, Error)
 import Browser.Events exposing (onResize)
-import Components.Svg as SVG exposing (Logo(..))
+import Components.Svg exposing (Logo(..))
 import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
-import Html exposing (Attribute, Html, a, div, h1, h2, h3, h5, img, li, node, object, p, section, source, span, strong, text, ul)
-import Html.Attributes exposing (alt, attribute, class, href, id, media, rel, src, tabindex, target)
-import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
+import Html exposing (Attribute, Html, a, div, h1, h2, h3, img, li, node, p, section, source, span, strong, text, ul)
+import Html.Attributes exposing (alt, attribute, class, href, id, media, src)
+import Html.Attributes.Aria exposing (ariaLabelledby)
 import Html.Events as Events
 import Html.Events.Extra.Mouse as Mouse
 import Layout exposing (headerId, initLayout)
@@ -16,15 +16,13 @@ import Page
 import Request
 import Round
 import Shared
-import Svg exposing (desc)
-import Svg.Attributes exposing (transform)
 import Task
 import Utils.View exposing (customProp, materialIcon)
 import View exposing (View)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page shared req =
+page _ _ =
     Page.element
         { init = init
         , update = update
